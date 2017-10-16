@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.event.S3EventNotification
 import com.amazonaws.services.s3.model.ObjectMetadata
 
 import reactor.core.publisher.Flux
+import reactor.core.scheduler.Schedulers
 import java.io.ByteArrayInputStream
 import java.net.URLDecoder
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
 
     override fun handleRequest(input: S3Event?, context: Context?): String {
 
-        input!!.records.forEach { record ->
+        Flux.fromIterable(input!!.records).subscribeOn(Schedulers.parallel()).doOnNext { record ->
             val s3Object = s3Client.getObject(record.s3.bucket.name, getS3Key(record))
 
             s3Object.objectContent.use { stream ->
@@ -25,7 +26,7 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
                     Flux.fromStream(reader.lines()).count().subscribe({ count ->  writeCountFile(record, count)})
                 }
             }
-        }
+        }.blockLast()
 
         return "OK"
     }
