@@ -11,6 +11,12 @@ import reactor.core.scheduler.Schedulers
 import java.io.ByteArrayInputStream
 import java.net.URLDecoder
 import javax.inject.Inject
+import com.sun.xml.internal.ws.streaming.XMLStreamReaderUtil.close
+import reactor.core.publisher.Flux.fromIterable
+import java.io.FileReader
+import java.io.BufferedReader
+
+
 
 class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHandler<S3Event, String> {
 
@@ -18,15 +24,16 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
 
     override fun handleRequest(input: S3Event?, context: Context?): String {
 
-        Flux.fromIterable(input!!.records).subscribeOn(Schedulers.parallel()).doOnNext { record ->
+        Flux.fromIterable(input!!.records).subscribe() { record ->
             val s3Object = s3Client.getObject(record.s3.bucket.name, getS3Key(record))
 
-            s3Object.objectContent.use { stream ->
-                stream.bufferedReader().use { reader ->
-                    Flux.fromStream(reader.lines()).count().subscribe({ count ->  writeCountFile(record, count)})
-                }
-            }
-        }.blockLast()
+            Flux.using(
+                    { s3Object.objectContent.bufferedReader() },
+                    { reader -> Flux.fromStream(reader.lines()) },
+                    { reader -> reader.close() }
+            ).count().subscribe({ count ->  writeCountFile(record, count)})
+
+        }
 
         return "OK"
     }
