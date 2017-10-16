@@ -47,7 +47,7 @@ class CountLinesOnS3FilesSpec  extends Specification {
             String bucket, String key, InputStream inputStream, ObjectMetadata metadata ->
                 assert bucket == BUCKET_NAME
                 assert key == OBJECT_KEY + '.count'
-                assert new String(inputStream.bytes) == CONTENT.readLines().size()
+                assert new String(inputStream.bytes) == CONTENT.readLines().size().toString()
         }
     }
 

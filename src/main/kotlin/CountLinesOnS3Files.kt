@@ -20,11 +20,9 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
         input!!.records.forEach { record ->
             val s3Object = s3Client.getObject(record.s3.bucket.name, getS3Key(record))
 
-            s3Object.objectContent.use {
-                it.bufferedReader().use {
-                    Flux.fromStream(it.lines()).count().doOnSuccess {
-                        writeCountFile(record, it)
-                    }.subscribe()
+            s3Object.objectContent.use { stream ->
+                stream.bufferedReader().use { reader ->
+                    Flux.fromStream(reader.lines()).count().subscribe({ count ->  writeCountFile(record, count)})
                 }
             }
         }
@@ -41,6 +39,7 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
         val meta = ObjectMetadata()
         meta.contentType = "text/plain"
         meta.contentLength = byteContent.size.toLong()
+
 
         s3Client.putObject(bucket, objName, ByteArrayInputStream(byteContent), meta)
     }
