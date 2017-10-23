@@ -17,6 +17,7 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'groovy'
+apply plugin: 'idea'
 
 compileKotlin {
     kotlinOptions {

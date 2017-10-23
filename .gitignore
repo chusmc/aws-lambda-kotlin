@@ -1,4 +1,9 @@
-/.gradle
+# Gradle:
+.gradle
 /build
+
+## IDE files:
+*.ipr
+*.iws
 /.idea
 /*.iml
