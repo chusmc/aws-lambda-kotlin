@@ -31,25 +31,14 @@ class CountLinesOnS3Files @Inject constructor(val s3Client: AmazonS3): RequestHa
                     { s3Object.objectContent.bufferedReader() },
                     { reader -> Flux.fromStream(reader.lines()) },
                     { reader -> reader.close() }
-            ).count().subscribe({ count ->  writeCountFile(record, count)})
-
+            ).count().subscribe({ count ->
+                context!!
+                        .logger
+                        .log("file ${getS3Key(record)} has $count lines")}
+            )
         }
 
         return "OK"
-    }
-
-    private fun writeCountFile(record: S3EventNotification.S3EventNotificationRecord, count: Long) {
-        val bucket = record.s3.bucket.name
-        val objName = getS3Key(record) + ".count"
-
-        val byteContent = "$count".toByteArray()
-
-        val meta = ObjectMetadata()
-        meta.contentType = "text/plain"
-        meta.contentLength = byteContent.size.toLong()
-
-
-        s3Client.putObject(bucket, objName, ByteArrayInputStream(byteContent), meta)
     }
 
 }
