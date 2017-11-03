@@ -26,7 +26,7 @@ Parameters:
     GitHubRepository:
         Description: Enter the repository name that should be monitored for changes
         Type: String
-        Default: https://github.com/milancermak/lambda-pipeline
+        Default: https://github.com/chusmc/aws-lambda-kotlin.git
 
     GitHubBranch:
         Description: Enter the GitHub branch to monitored
