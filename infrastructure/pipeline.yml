@@ -26,7 +26,7 @@ Parameters:
     GitHubRepository:
         Description: Enter the repository name that should be monitored for changes
         Type: String
-        Default: https://github.com/chusmc/aws-lambda-kotlin.git
+        Default: aws-lambda-kotlin
 
     GitHubBranch:
         Description: Enter the GitHub branch to monitored
@@ -176,28 +176,12 @@ Resources:
                   Version: 1
                   Provider: GitHub
               OutputArtifacts:
-                  -  Name: Source
+                  -  Name: SourceOutput
               Configuration:
                   Owner: !Ref GitHubUser
                   Repo: !Ref GitHubRepository
                   Branch: !Ref GitHubBranch
                   OAuthToken: !Ref GitHubOAuthToken
-        - Name: PipelineDeploy
-          Actions:
-            - Name: CreateUpdatePipeline
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ActionMode: CREATE_UPDATE
-                Capabilities: CAPABILITY_IAM
-                RoleArn: !GetAtt CloudFormationRole.Arn
-                StackName: !Ref AWS::StackName
-                TemplatePath: SourceOutput::infrastructure/pipeline.yml
-              InputArtifacts:
-                - Name: SourceOutput
         - Name: Build
           Actions:
             - Name: BuildAndTest
