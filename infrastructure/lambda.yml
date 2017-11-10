@@ -27,12 +27,21 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: midas-lambda-project-artifacts
+        S3Bucket: team-midas
         S3Key: !Ref DeploymentPackageKey
       FunctionName: midasCountLinesOnS3Files
       Handler: CountLinesOnS3Files.handleRequest
+      Timeout: 20
       Role: !GetAtt LambdaRunnerRole.Arn
       Runtime: java8
+      Events:
+        BucketEvent1:
+          Type: S3
+          Properties:
+            Bucket: team-midas
+            Key: test-lambda-file
+            Events:
+              - 's3:ObjectCreated:*'
 
 Outputs:
   LambdaFunction:

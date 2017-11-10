@@ -13,7 +13,7 @@ Parameters:
     ArtifactsBucket:
         Description: An existing S3 bucket within this AWS account
         Type: String
-        Default: midas-lambda-project-artifacts
+        Default: team-midas
 
     GitHubOAuthToken: 
         Description: Create a token with 'repo' and 'admin:repo_hook' permissions here https://github.com/settings/tokens
