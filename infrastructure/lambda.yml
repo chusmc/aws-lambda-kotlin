@@ -39,7 +39,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: team-midas
-      NotificationCofiguration:
+      NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
             Function: { "Fn::GetAtt" : ["LambdaFunction", "Arn"] }
