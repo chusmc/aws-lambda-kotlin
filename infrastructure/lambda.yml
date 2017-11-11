@@ -27,21 +27,30 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: team-midas
+        S3Bucket: {"Fn::ImportValue": "MidasPipelineArtifactsBucket"}
         S3Key: !Ref DeploymentPackageKey
-      FunctionName: midasCountLinesOnS3Files
+      FunctionName: MidasCountLinesOnS3Files
       Handler: CountLinesOnS3Files.handleRequest
       Timeout: 20
       Role: !GetAtt LambdaRunnerRole.Arn
       Runtime: java8
-      Events:
-        BucketEvent1:
-          Type: S3
-          Properties:
-            Bucket: team-midas
-            Key: test-lambda-file
-            Events:
-              - 's3:ObjectCreated:*'
+
+  InputBucket: 
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: team-midas
+      NotificationCofiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: { "Fn::GetAtt" : ["LambdaFunction", "Arn"] }
+            Filter: 
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: test-lambda-file
+                  - Name: suffix
+                    Value: .txt
+
 
 Outputs:
   LambdaFunction:

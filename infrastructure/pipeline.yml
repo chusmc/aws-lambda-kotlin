@@ -221,5 +221,5 @@ Outputs:
     Description: S3 bucket holding all the OutputArtifacts of any pipeline stage
     Value: !Ref ArtifactsBucket
     Export:
-      Name: !Sub '${ProjectName}PipelineArtifactsBucket'
+      Name: 'MidasPipelineArtifactsBucket'
 
